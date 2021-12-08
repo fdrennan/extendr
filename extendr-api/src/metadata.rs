@@ -17,7 +17,9 @@ pub struct Arg {
 #[derive(Debug, PartialEq)]
 pub struct Func {
     pub doc: &'static str,
-    pub name: &'static str,
+    pub rust_name: &'static str,
+    pub mod_name: &'static str,
+    pub r_name: &'static str,
     pub args: Vec<Arg>,
     pub return_type: &'static str,
     pub func_ptr: *const u8,
@@ -53,13 +55,23 @@ impl From<Func> for Robj {
     fn from(val: Func) -> Self {
         List::from_values(&[
             r!(val.doc),
-            r!(val.name),
+            r!(val.rust_name),
+            r!(val.mod_name),
+            r!(val.r_name),
             r!(List::from_values(val.args)),
             r!(val.return_type),
             r!(val.hidden),
         ])
         .into_robj()
-        .set_names(&["doc", "name", "args", "return.type", "hidden"])
+        .set_names(&[
+            "doc",
+            "rust_name",
+            "mod_name",
+            "r_name",
+            "args",
+            "return.type",
+            "hidden",
+        ])
         .expect("From<Func> failed")
     }
 }
@@ -138,22 +150,22 @@ fn write_function_wrapper(
         write!(
             w,
             "{} <- function({}) invisible(.Call(",
-            sanitize_identifier(func.name),
+            sanitize_identifier(func.r_name),
             args
         )?;
     } else {
         write!(
             w,
             "{} <- function({}) .Call(",
-            sanitize_identifier(func.name),
+            sanitize_identifier(func.r_name),
             args
         )?;
     }
 
     if use_symbols {
-        write!(w, "wrap__{}", func.name)?;
+        write!(w, "wrap__{}", func.mod_name)?;
     } else {
-        write!(w, "\"wrap__{}\"", func.name)?;
+        write!(w, "\"wrap__{}\"", func.mod_name)?;
     }
 
     if !func.args.is_empty() {
@@ -212,7 +224,7 @@ fn write_method_wrapper(
             w,
             "{}${} <- function({}) invisible(.Call(",
             sanitize_identifier(class_name),
-            sanitize_identifier(func.name),
+            sanitize_identifier(func.r_name),
             formal_args
         )?;
     } else {
@@ -220,16 +232,16 @@ fn write_method_wrapper(
             w,
             "{}${} <- function({}) .Call(",
             sanitize_identifier(class_name),
-            sanitize_identifier(func.name),
+            sanitize_identifier(func.r_name),
             formal_args
         )?;
     }
 
     // Here no processing is needed because of `wrap__` prefix
     if use_symbols {
-        write!(w, "wrap__{}__{}", class_name, func.name)?;
+        write!(w, "wrap__{}__{}", class_name, func.mod_name)?;
     } else {
-        write!(w, "\"wrap__{}__{}\"", class_name, func.name)?;
+        write!(w, "\"wrap__{}__{}\"", class_name, func.mod_name)?;
     }
 
     if !actual_args.is_empty() {
