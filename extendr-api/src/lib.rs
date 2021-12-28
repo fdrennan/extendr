@@ -196,7 +196,7 @@
 //! which is released when the object lifetime ends.
 //!
 //! Borrowed objects such as &[i32] and &str are just pointers
-//! to annother object's memory and can't live longer than the
+//! to another object's memory and can't live longer than the
 //! object they reference.
 //!
 //! Borrowed objects are much faster than owned objects and use less
