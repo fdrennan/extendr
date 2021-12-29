@@ -2,7 +2,7 @@ use crate as extendr_api;
 use crate::*;
 
 /// Get a global variable from global_env() and ancestors.
-/// If the result is a promise, evaulate the promise.
+/// If the result is a promise, evaluate the promise.
 ///
 /// See also [global_var()].
 /// ```
@@ -19,7 +19,7 @@ pub fn global_var<K: Into<Robj>>(key: K) -> Result<Robj> {
 
 /// Get a local variable from current_env() and ancestors.
 ///
-/// If the result is a promise, evaulate the promise.
+/// If the result is a promise, evaluate the promise.
 /// The result will come from the calling environment
 /// of an R function which will enable you to use variables
 /// from the caller.
